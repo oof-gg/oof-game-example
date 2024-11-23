@@ -1,0 +1,20 @@
+{
+  "name": "oof-game-example",
+  "version": "1.0.0",
+  "description": "This is an oof.gg game example leveraging SDK. The goal of this project is to demonstrate how to use the SDK to create a game.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc && cp src/index.html dist/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx tsc --watch"
+  },
+  "author": "Brian S. <brian@oof.gg> (https://www.oof.gg/)",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^22.9.3",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
