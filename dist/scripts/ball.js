@@ -3,47 +3,15 @@ export default class Ball {
     x = 0;
     y = 0;
     radius = 8;
-    speedX = 4;
-    speedY = 4;
+    speedX = 40;
+    speedY = 40;
     constructor(canvas) {
         this.canvas = canvas;
         this.reset();
     }
-    // update the ball position and check for collisions w/ paddle and walls
-    update(paddle) {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        // check for collision with walls (left and right)
-        if (this.x - this.radius < 0 || this.x + this.radius > this.canvas.width) {
-            this.speedX *= -1;
-        }
-        // check for collision with walls (top)
-        if (this.y - this.radius < 0) {
-            this.speedY *= -1; // reverse direction
-        }
-        // check for collision with paddle (x-axis)
-        const paddlePos = paddle.getPosition();
-        const minBallPosX = this.x - this.radius; // left edge of ball
-        const maxBallPosX = this.x + this.radius; // right edge of ball
-        const minBallPosY = this.y - this.radius; // top edge of ball
-        const maxBallPosY = this.y + this.radius; // bottom edge of ball
-        const paddleLeft = paddlePos.x;
-        const paddleRight = paddlePos.x + paddlePos.width;
-        const paddleTop = paddlePos.y;
-        const paddleBottom = paddlePos.y + paddlePos.height;
-        const topPaddleTouched = maxBallPosY > paddleTop;
-        const leftPaddleTouched = maxBallPosX > paddleLeft;
-        const rightPaddleTouched = minBallPosX < paddleRight;
-        // check for collision with paddle (x-axis & y-axis)
-        if (topPaddleTouched && leftPaddleTouched && rightPaddleTouched) {
-            this.y = paddlePos.y - this.radius; // prevent sticking
-            this.speedY *= -1;
-            console.log("Collision with paddle:", paddlePos.x, paddlePos.y, paddlePos.width, paddlePos.height);
-        }
-        // reset ball if it goes below the paddle
-        if (this.y + this.radius > this.canvas.height) {
-            this.reset();
-        }
+    setPosition(x, y) {
+        this.x = x;
+        this.y = y;
     }
     draw(ctx) {
         ctx.beginPath();
