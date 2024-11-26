@@ -35,7 +35,7 @@ export default class Game {
       // update the position to be opposite for second player
       if (i === 1) {
         bottom_player = !bottom_player;
-        console.log("Inverting player position:", bottom_player);
+        console
       }
       
 
