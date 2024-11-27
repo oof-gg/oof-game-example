@@ -1,7 +1,7 @@
 import Game from "./scripts/game.js";
 const canvas = document.querySelector("canvas");
 const game = new Game(canvas);
-const ws = new WebSocket("ws://192.168.1.64:9090");
+const ws = new WebSocket("ws://localhost:9090");
 let playerName = null;
 let isLocalPlayer = true; // Always consider self as the bottom paddle
 let isInverted = false; // Assume the opponent is at the top
@@ -18,7 +18,13 @@ ws.onopen = () => {
     console.log("Connected to server");
 };
 const joinGame = () => {
-    ws.send(JSON.stringify({ type: "REGISTER_PLAYER", playerName: playerNameInput.value }));
+    ws.send(JSON.stringify({ type: "REGISTER_PLAYER",
+        playerName: playerNameInput.value,
+        screenX: window.innerWidth,
+        screenY: window.innerHeight
+    }));
+    // hide #gameNav
+    document.getElementById("gameNav")?.classList.add("d-none");
 };
 // send a REGISTER_PLAYER message to the server
 joinButton.addEventListener("click", () => {
@@ -35,10 +41,6 @@ ws.onmessage = (event) => {
             console.log("Player ID:", message.playerName);
             playerName = message.playerName;
             game.start();
-            game.onPaddleMove((x, y, width, height) => {
-                console.log("Sending paddle update:", playerName, x);
-                ws.send(JSON.stringify({ type: "UPDATE_PADDLE", playerName, x, y, width, height }));
-            });
             break;
         case "STATE_UPDATE":
             game.updateState(message.gameState);
@@ -47,3 +49,7 @@ ws.onmessage = (event) => {
             console.error("Unknown message type:", message.type);
     }
 };
+game.onPaddleMove((x, y, width, height) => {
+    console.log("Sending paddle update:", playerName, x);
+    ws.send(JSON.stringify({ type: "UPDATE_PADDLE", playerName, x, y, width, height }));
+});

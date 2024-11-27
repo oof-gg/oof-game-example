@@ -1,0 +1,24 @@
+body {
+  padding: 0px;
+  margin: 0px;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.btn-primary {
+  background-color: #4caf50;
+  border-color: #4caf50;
+}
+
+.btn-primary:hover {
+  background-color: #45a049;
+  border-color: #45a049;
+}

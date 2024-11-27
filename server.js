@@ -21,6 +21,8 @@ wss.on('connection', (ws) => {
 
     if (message.type === 'REGISTER_PLAYER') {
       // Register the new player
+      const canvasWidth = message.canvasWidth
+      const canvasHeight = message.canvasHeight
       console.log(`Player registered: ${message.playerName}`)
       const playerName = message.playerName
       
