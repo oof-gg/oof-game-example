@@ -15,13 +15,20 @@ export default class Game {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
-    this.canvas.width = 800;
-    this.canvas.height = 600;
+    this.resizeCanvas();
 
     this.update = this.update.bind(this);
     this.ball = new Ball(this.canvas);
   }
 
+  resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    this.canvas.width = window.innerWidth * dpr;
+    this.canvas.height = window.innerHeight * dpr;
+
+    this.ctx.scale(dpr, dpr);
+    console.log("Resized canvas to:", this.canvas.width, this.canvas.height);
+  }
 
   setInitialState(currPlayerId: string, gameState: any, playerRole: string) {
     this.localPlayerId = currPlayerId;
@@ -63,6 +70,16 @@ export default class Game {
     this.paddleMoveCallback = callback;
   }
 
+  drawMenu() {
+    this.ctx.fillStyle = "#000000";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.fillStyle = "#FFFFFF";
+    this.ctx.font = "30px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Press any key to start", this.canvas.width / 2, this.canvas.height / 2);
+  }
+
   loop = (timestamp: number) => {
     const timeSinceLastFrame = timestamp - this.lastFrameTime;
     const targetFrameTime = 1000 / Config.fps;
@@ -81,7 +98,7 @@ export default class Game {
   }
 
   private draw() {
-    this.ctx.fillStyle = "#CCC";
+    this.ctx.fillStyle = "#000000";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     Object.values(this.paddles).forEach(paddle => paddle.draw(this.ctx));
     this.ball.draw(this.ctx);
