@@ -2,18 +2,23 @@ const WebSocket = require('ws')
 
 const wss = new WebSocket.Server({ port: 9090 })
 
+let players = [];
+let gameWidth = 390
+let gameHeight = 844;
+
 let gameState = {
-  paddles: {
-  }, // Store paddle positions by player ID
-  ball: { x: 400, y: 200, dx: 8, dy: 8 }, // Ball position and velocity
+  paddles: {}, // Store paddle positions by player ID
+  ball: {
+    x: Math.floor(gameWidth / 2),
+    y: Math.floor(gameHeight / 2),
+    dx: 8,
+    dy: 8,
+  }, // Ball position and velocity
 }
 
-let players = [];
-
 wss.on('connection', (ws) => {
+  // Generate a unique player ID
   const playerId = Math.random().toString(36).substring(2, 9) // Generate unique ID
-  console.log(`Player connected: ${playerId}`)
-
 
   // Handle incoming messages from clients
   ws.on('message', (data) => {
@@ -23,7 +28,6 @@ wss.on('connection', (ws) => {
       // Register the new player
       const canvasWidth = message.canvasWidth
       const canvasHeight = message.canvasHeight
-      console.log(`Player registered: ${message.playerName}`)
       const playerName = message.playerName
       
       let playerRole = 'bottom'
@@ -50,22 +54,18 @@ wss.on('connection', (ws) => {
         )
       }
 
-      console.log(`Players: ${players.map(player => player.name)}`)
-
       // Initialize paddle position for the new player
-      gameState.paddles[playerName] = { x: 350 }
+      gameState.paddles[playerName] = { x: Math.floor(gameWidth/2) }
 
-      console.log(`Sending INIT message to player ${playerName}`)
-
+      // Send the initial game state to the new player
       ws.send(
-        JSON.stringify({ type: 'INIT', playerName, playerRole, gameState })
+        JSON.stringify({ type: 'INIT', playerName, playerRole, gameState, gameWidth, gameHeight })
       )
     }
 
     if (message.type === 'UPDATE_PADDLE') {
       // Update paddle position from client
       gameState.paddles[message.playerName] = { x: message.x, y: message.y, width: message.width, height: message.height }
-      console.log(`Player ${message.playerName} moved paddle to ${message.x}`)
     }
 
   })
@@ -91,8 +91,8 @@ setInterval(() => {
   ball.y += ball.dy
 
   // Bounce off walls
-  if (ball.x <= 0 || ball.x >= 800) ball.dx *= -1
-  if (ball.y <= 0 || ball.y >= 600) ball.dy *= -1
+  if (ball.x <= 0 || ball.x >= gameWidth) ball.dx *= -1
+  if (ball.y <= 0 || ball.y >= gameHeight) ball.dy *= -1
 
   // consider that the paddles are at the top and the bottom of the canvas
   // consider for both players, they act as the bottom player, and because of that we need to change the player OR the ball position when calculating the collision (mirror x and y for paddle and ball for 1 player) when checking for collision

@@ -30,9 +30,7 @@ ws.onopen = () => {
 
 const joinGame = () => {
   ws.send(JSON.stringify({ type: "REGISTER_PLAYER", 
-    playerName: playerNameInput.value,
-    screenX: window.innerWidth,
-    screenY: window.innerHeight
+    playerName: playerNameInput.value
   }));
   // hide #gameNav
   document.getElementById("gameNav")?.classList.add("d-none");
@@ -40,7 +38,6 @@ const joinGame = () => {
 
 // send a REGISTER_PLAYER message to the server
 joinButton.addEventListener("click", () => {
-  console.log("Sending REGISTER_PLAYER message to server");
   joinGame();
 });
 
@@ -48,12 +45,13 @@ ws.onmessage = (event) => {
   const message = JSON.parse(event.data);
   switch(message.type) {
     case "INIT":
-      console.log("Received INIT message from server");
       isInverted = message.playerRole === "top";
-      game.setInitialState(message.playerName, message.gameState, message.playerRole);
-      console.log("Player ID:", message.playerName);
+      game.setInitialState(message.playerName, message.gameState, message.playerRole, message.gameWidth, message.gameHeight);
       playerName = message.playerName;
-      
+      let gameWidth = message.gameWidth;
+      let gameHeight = message.gameHeight;
+
+      // Resize the canvas to match the game width and height, while maintaining the aspect ratio. Put black bars on the sides or top/bottom if needed.
 
       game.start();
       break;
@@ -65,6 +63,5 @@ ws.onmessage = (event) => {
   }
 }
 game.onPaddleMove((x: number, y: number, width: number, height: number) => {
-  console.log("Sending paddle update:", playerName, x);
   ws.send(JSON.stringify({ type: "UPDATE_PADDLE", playerName, x, y, width, height }));
 });

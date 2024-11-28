@@ -13,7 +13,6 @@ export default class Paddle {
     constructor(canvas, playerId, isLocalPlayer, isInverted = false) {
         this.canvas = canvas;
         this.reset();
-        console.log("Creating paddle (", playerId, ") for player:", isLocalPlayer, isInverted);
         this.isInverted = isInverted;
         this.y = isInverted ? 30 : this.canvas.height - 30;
         this.isLocalPlayer = isLocalPlayer;
@@ -37,7 +36,6 @@ export default class Paddle {
         else if (e.key === "ArrowRight") {
             this.direction = 1; // Invert for top player
         }
-        console.log("Key pressed: " + e.key);
     };
     handleKeyUp = (e) => {
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -69,7 +67,6 @@ export default class Paddle {
     }
     onMove(callback) {
         if (this.isLocalPlayer) {
-            console.log("Setting move callback for local player");
             this.moveCallback = callback;
         }
     }

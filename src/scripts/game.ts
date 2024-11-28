@@ -15,43 +15,54 @@ export default class Game {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
-    this.resizeCanvas();
-
     this.update = this.update.bind(this);
     this.ball = new Ball(this.canvas);
   }
 
-  resizeCanvas() {
+  resizeCanvas(gameWidth: number, gameHeight: number) {
+    // Resize the canvas to match the game width and height, while maintaining the aspect ratio. Put black bars on the sides or top/bottom if needed. Also handle the device pixel ratio.
+    const aspectRatio = gameWidth / gameHeight;
+    const windowAspectRatio = window.innerWidth / window.innerHeight;
+
+    // Adjust canvas CSS size based on aspect ratio
+    if (aspectRatio > windowAspectRatio) {
+        // Wider game area: Fit width, add black bars top/bottom
+        this.canvas.style.width = `${window.innerWidth}px`;
+        this.canvas.style.height = `${window.innerWidth / aspectRatio}px`;
+    } else {
+        // Taller game area: Fit height, add black bars sides
+        this.canvas.style.width = `${window.innerHeight * aspectRatio}px`;
+        this.canvas.style.height = `${window.innerHeight}px`;
+    }
+
+    // Account for device pixel ratio (DPR)
     const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = window.innerWidth * dpr;
-    this.canvas.height = window.innerHeight * dpr;
+
+    // Set internal canvas resolution to match game size * DPR
+    this.canvas.width = gameWidth * dpr;
+    this.canvas.height = gameHeight * dpr;
 
     this.ctx.scale(dpr, dpr);
-    console.log("Resized canvas to:", this.canvas.width, this.canvas.height);
   }
 
-  setInitialState(currPlayerId: string, gameState: any, playerRole: string) {
+  setInitialState(currPlayerId: string, gameState: any, playerRole: string, gameWidth: number, gameHeight: number) {
     this.localPlayerId = currPlayerId;
-    console.log("Game state:", gameState);
 
-    console.log("Local player ID:", this.localPlayerId);
     let i = 0;
     for (const playerId in gameState.paddles) {
       let bottom_player = playerRole === "bottom";
-      console.log("Player role:", playerRole, bottom_player);
       // update the position to be opposite for second player
       if (i === 1) {
         bottom_player = !bottom_player;
         console
       }
       
-
-      console.log("Creating paddle for player:", playerId, this.localPlayerId, playerRole);
       this.paddles[playerId] = new Paddle(this.canvas, playerId, playerId === this.localPlayerId, bottom_player);
       i++;
     }
 
     this.ball.setPosition(gameState.ball.x, gameState.ball.y);
+    this.resizeCanvas(gameWidth, gameHeight);
   }
   
   updateState(gameState: any) {
@@ -66,18 +77,7 @@ export default class Game {
   }
 
   onPaddleMove(callback: (x: number, y: number, width: number, height: number) => void) {
-    console.log("Setting paddle move callback");
     this.paddleMoveCallback = callback;
-  }
-
-  drawMenu() {
-    this.ctx.fillStyle = "#000000";
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    this.ctx.fillStyle = "#FFFFFF";
-    this.ctx.font = "30px Arial";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText("Press any key to start", this.canvas.width / 2, this.canvas.height / 2);
   }
 
   loop = (timestamp: number) => {
@@ -106,9 +106,7 @@ export default class Game {
 
   start() {
     const localPaddle = this.paddles[this.localPlayerId];
-    console.log("Local paddle:", localPaddle);
     localPaddle?.onMove((x: number, y: number, width: number, height: number) => {
-      console.log("Paddle move callback:", x);
       this.paddleMoveCallback(x, y, width, height);
     });
 
