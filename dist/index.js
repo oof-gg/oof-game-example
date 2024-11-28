@@ -3,7 +3,6 @@ const canvas = document.querySelector("canvas");
 const game = new Game(canvas);
 const ws = new WebSocket("ws://localhost:9090");
 let playerName = null;
-let isLocalPlayer = true; // Always consider self as the bottom paddle
 let isInverted = false; // Assume the opponent is at the top
 // grab playerName from playerName input field
 const playerNameInput = document.getElementById("playerName");
