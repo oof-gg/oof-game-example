@@ -1,71 +1,76 @@
 import Game from "./scripts/game";
 import { game_instance } from '@oof.gg/protobuf-ts';
+import { GameSDK, SDKConfig } from '@oof.gg/sdk';
 
-export const main = (canvas: HTMLCanvasElement, config: game_instance.InstanceCommandMessage) => {
-  console.log("Hello from main!");
-  console.log("Config received from parent:", config);
+export const main = async (canvas: HTMLCanvasElement, config: game_instance.InstanceCommandMessage) => {
   const gameConfig = config.authConfig?.config;
 
+  const sdkConfig: SDKConfig = {
+    authUrl: '/auth',
+    socketUrl: 'ws://0.0.0.0:9090',
+    apiUrl: '/api',
+  }
+
+  const sdk = new GameSDK(sdkConfig);
+
   let game:any = null;
-  const ws = new WebSocket("ws://0.0.0.0:9090");
+  const token = 'your-jwt-token';
+  await sdk.connect(token);
+
+  let playerName: string | null = null;
+  let isInverted = false // Assume the opponent is at the top
+    
+  const payload = {
+    state: game_instance.InstanceCommandEnum.START,
+    playerName: config.playerId,
+  }
+
+  //TODO: Change to use SDK/protobufs
+  sdk.events.websocket.game.emit('REGISTER_PLAYER', payload);
+
+  // Listen for messages from the main thread
+  game = new Game(canvas, config);
+
+  // Subscribe to WebSocket game events
+  sdk.events.websocket.game.on('INIT', (data) => {
+    playerName = data.playerId || null;
+    isInverted = data.playerRole === "top";
+    game.setInitialState(data.playerName, data.gameState, data.playerRole, data.gameWidth, data.gameHeight);
+    playerName = data.playerName;
+    game.start();
+  });
+
+  sdk.events.websocket.game.on('STATE_UPDATE', (data) => {
+    game.updateState(data.gameState);
+  });
+
+  sdk.events.local.on(game_instance.InstanceCommandEnum.ABORT, (data) => {
+    console.log('ABORT event received:', data);
+  });
+  
+  sdk.events.local.on(game_instance.InstanceCommandEnum.STOP, (data) => {
+    console.log('STOP event received:', data);
+  });
 
   //TODO: Add SDK to the game so that playerauth can be done
+  game.onPaddleMove((x: number, y: number, width: number, height: number) => {
 
-  ws.onopen = () => {
-    console.log("Connected to ws");
-
-    // now that we are connected to the server, we can send the REGISTER_PLAYER message
-
-    let playerName: string | null = null;
-    let isInverted = false // Assume the opponent is at the top
-    
-    const message = {
-      state: game_instance.InstanceCommandEnum.START,
-      playerId: config.playerId,
+    const payload = {
+      x: x,
+      y: y,
+      width: width,
+      height: height,
+      playerName: playerName,
     }
 
-    // Listen for messages from the main thread
-    game = new Game(canvas, config);
-    // check type of command
-    switch (message.state) {
-      case game_instance.InstanceCommandEnum.START:
-        console.log("Starting game");
-        // joinGame since we have the playerName coming from the message
-        playerName = message.playerId || null;
-        ws.send(JSON.stringify({ type: "REGISTER_PLAYER", 
-          playerName: message.playerId
-        }));
-        break;
-      case game_instance.InstanceCommandEnum.STOP:
-        console.log("Stopping game");
-        break;
-      default:
-        console.error("Unknown command:", message.state);
-    }
+    sdk.events.websocket.game.emit('UPDATE_PADDLE', payload);
+  });
 
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      switch(message.type) {
-        case "INIT":
-          isInverted = message.playerRole === "top";
-          game.setInitialState(message.playerName, message.gameState, message.playerRole, message.gameWidth, message.gameHeight);
-          playerName = message.playerName;
-          game.start();
-          break;
-        case "STATE_UPDATE":
-          game.updateState(message.gameState);
-          break;
-        default:
-          console.error("Unknown message type:", message.type);
-      }
-    }
-
-    // grab the payerName from the input field and when user presses joinButton, send a REGISTER_PLAYER message to the server
-    game.onPaddleMove((x: number, y: number, width: number, height: number) => {
-      ws.send(JSON.stringify({ type: "UPDATE_PADDLE", playerName, x, y, width, height }));
-    });
-
-  }
+  //Close Button that triggers the ABORT event
+  const closeButton = document.getElementById('closeButton');
+  closeButton?.addEventListener('click', () => {
+    sdk.events.local.emit(game_instance.InstanceCommandEnum.ABORT, {});
+  });
 }
 
 
