@@ -9,16 +9,21 @@ export default class Paddle {
   private playerId: string = '';
   private isLocalPlayer: boolean = false;
   private isInverted: boolean = false;
+  private config: any;
+  private dpr: number;
   private moveCallback: (x: number, y: number, width: number, height: number) => void = () => {} // Default to no-op
 
-  constructor(canvas: HTMLCanvasElement, playerId: string, isLocalPlayer: boolean, isInverted: boolean = false) {
+  constructor(canvas: HTMLCanvasElement, playerId: string, isLocalPlayer: boolean, isInverted: boolean = false, config: any) {
     this.canvas = canvas;
-    this.reset();
     this.isInverted = isInverted;
-    this.y = isInverted ? 30 : this.canvas.height - 30;
     this.isLocalPlayer = isLocalPlayer;
     this.playerId = playerId;
     this.isInverted = isInverted;
+    this.config = config;
+    this.dpr = config.authConfig.config.dpr || 1;
+    this.y = isInverted ? 30 : this.canvas.height/this.dpr - 30;
+
+    this.reset();
 
     if(this.isLocalPlayer) {
       console.log("Adding event listeners for local player");
@@ -30,8 +35,9 @@ export default class Paddle {
   }
 
   private reset() {
-    this.x = (this.canvas.width - this.width) / 2;
-    this.y = this.isInverted ? 30 : this.canvas.height - 30;
+    this.x = (this.canvas.width/this.dpr - this.width) / 2;
+    this.y = this.isInverted ? 30 : this.canvas.height/this.dpr - 30;
+    console.log("Paddle reset:", this.x, this.y);
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {
@@ -56,7 +62,7 @@ export default class Paddle {
     if(this.isLocalPlayer) {
       const prevX = this.x;
       this.x += this.direction * this.speed;
-      this.x = Math.max(0, Math.min(this.x, this.canvas.width - this.width)); // keep paddle within canvas bounds
+      this.x = Math.max(0, Math.min(this.x, (this.canvas.width/this.dpr - this.width))); // keep paddle within canvas bounds
 
       if(prevX !== this.x) {
         console.log("Paddle moved:", this.x);

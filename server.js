@@ -17,8 +17,9 @@ let gameState = {
 }
 
 wss.on('connection', (ws) => {
-  // Generate a unique player ID
   const playerId = Math.random().toString(36).substring(2, 9) // Generate unique ID
+  console.log(`Player connected: ${playerId}`)
+
 
   // Handle incoming messages from clients
   ws.on('message', (data) => {
@@ -28,6 +29,7 @@ wss.on('connection', (ws) => {
       // Register the new player
       const canvasWidth = message.canvasWidth
       const canvasHeight = message.canvasHeight
+      console.log(`Player registered: ${message.playerName}`)
       const playerName = message.playerName
       
       let playerRole = 'bottom'
@@ -54,6 +56,8 @@ wss.on('connection', (ws) => {
         )
       }
 
+      console.log(`Players: ${players.map(player => player.name)}`)
+
       // Initialize paddle position for the new player
       gameState.paddles[playerName] = { x: Math.floor(gameWidth/2) }
 
@@ -66,6 +70,7 @@ wss.on('connection', (ws) => {
     if (message.type === 'UPDATE_PADDLE') {
       // Update paddle position from client
       gameState.paddles[message.playerName] = { x: message.x, y: message.y, width: message.width, height: message.height }
+      console.log(`Player ${message.playerName} moved paddle to ${message.x}`)
     }
 
   })
