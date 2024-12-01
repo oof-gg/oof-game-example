@@ -10,6 +10,10 @@ This is an oof.gg game example leveraging SDK. The goal of this project is to de
 - [ ] Send and receive data from the SDK
 - [ ] Run the game
 
+## Requirements
+- Take in the canvas element
+- Initialize with `main` function with the canvas element, and the game configuration. As an example: `main(canvas: HTMLCanvasElement, config: GameConfig): void`
+
 ## Game Configuration
 The game configuration is defined in the `config.json` file. This file contains the following properties:
 - `width`: The width of the game canvas

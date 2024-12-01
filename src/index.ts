@@ -1,66 +1,71 @@
-import { join } from "path";
-import Game from "./scripts/game.js";
+import Game from "./scripts/game";
+import { game_instance } from '@oof.gg/protobuf-ts';
 
-const canvas: HTMLCanvasElement = document.querySelector("canvas") as HTMLCanvasElement;
-const game = new Game(canvas);
+export const main = (canvas: HTMLCanvasElement, config: game_instance.InstanceCommandMessage) => {
+  console.log("Hello from main!");
+  console.log("Config received from parent:", config);
+  const gameConfig = config.authConfig?.config;
 
-const ws = new WebSocket("ws://localhost:9090");
+  let game:any = null;
+  const ws = new WebSocket("ws://0.0.0.0:9090");
 
-let playerName: string | null = null;
-let isInverted = false // Assume the opponent is at the top
+  //TODO: Add SDK to the game so that playerauth can be done
 
-// grab playerName from playerName input field
-const playerNameInput = document.getElementById("playerName") as HTMLInputElement;
+  ws.onopen = () => {
+    console.log("Connected to ws");
 
-// save the playerName in localStorage and load it when the page is refreshed
-playerNameInput.value = localStorage.getItem("playerName") || "";
+    // now that we are connected to the server, we can send the REGISTER_PLAYER message
 
-playerNameInput.addEventListener("input", () => {
-  localStorage.setItem("playerName", playerNameInput.value);
-});
+    let playerName: string | null = null;
+    let isInverted = false // Assume the opponent is at the top
+    
+    const message = {
+      state: game_instance.InstanceCommandEnum.START,
+      playerId: config.playerId,
+    }
 
-// grab the payerName from the input field and when user presses joinButton, send a REGISTER_PLAYER message to the server
+    // Listen for messages from the main thread
+    game = new Game(canvas, config);
+    // check type of command
+    switch (message.state) {
+      case game_instance.InstanceCommandEnum.START:
+        console.log("Starting game");
+        // joinGame since we have the playerName coming from the message
+        playerName = message.playerId || null;
+        ws.send(JSON.stringify({ type: "REGISTER_PLAYER", 
+          playerName: message.playerId
+        }));
+        break;
+      case game_instance.InstanceCommandEnum.STOP:
+        console.log("Stopping game");
+        break;
+      default:
+        console.error("Unknown command:", message.state);
+    }
 
-const joinButton = document.getElementById("joinButton") as HTMLButtonElement;
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      switch(message.type) {
+        case "INIT":
+          isInverted = message.playerRole === "top";
+          game.setInitialState(message.playerName, message.gameState, message.playerRole, message.gameWidth, message.gameHeight);
+          playerName = message.playerName;
+          game.start();
+          break;
+        case "STATE_UPDATE":
+          game.updateState(message.gameState);
+          break;
+        default:
+          console.error("Unknown message type:", message.type);
+      }
+    }
 
-ws.onopen = () => {
-  console.log("Connected to server");
-}
+    // grab the payerName from the input field and when user presses joinButton, send a REGISTER_PLAYER message to the server
+    game.onPaddleMove((x: number, y: number, width: number, height: number) => {
+      ws.send(JSON.stringify({ type: "UPDATE_PADDLE", playerName, x, y, width, height }));
+    });
 
-const joinGame = () => {
-  ws.send(JSON.stringify({ type: "REGISTER_PLAYER", 
-    playerName: playerNameInput.value
-  }));
-  // hide #gameNav
-  document.getElementById("gameNav")?.classList.add("d-none");
-}
-
-// send a REGISTER_PLAYER message to the server
-joinButton.addEventListener("click", () => {
-  joinGame();
-});
-
-ws.onmessage = (event) => {
-  const message = JSON.parse(event.data);
-  switch(message.type) {
-    case "INIT":
-      isInverted = message.playerRole === "top";
-      game.setInitialState(message.playerName, message.gameState, message.playerRole, message.gameWidth, message.gameHeight);
-      playerName = message.playerName;
-      let gameWidth = message.gameWidth;
-      let gameHeight = message.gameHeight;
-
-      // Resize the canvas to match the game width and height, while maintaining the aspect ratio. Put black bars on the sides or top/bottom if needed.
-
-      game.start();
-      break;
-    case "STATE_UPDATE":
-      game.updateState(message.gameState);
-      break;
-    default:
-      console.error("Unknown message type:", message.type);
   }
 }
-game.onPaddleMove((x: number, y: number, width: number, height: number) => {
-  ws.send(JSON.stringify({ type: "UPDATE_PADDLE", playerName, x, y, width, height }));
-});
+
+

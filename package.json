@@ -4,7 +4,7 @@
   "description": "This is an oof.gg game example leveraging SDK. The goal of this project is to demonstrate how to use the SDK to create a game.",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc && cp -R public/*.* dist/",
+    "build": "cp -R public/* dist/ && webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx tsc --watch"
   },
@@ -14,10 +14,16 @@
     "@types/node": "^22.9.3",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
+    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0",
+    "worker-loader": "^3.0.8"
   },
   "dependencies": {
+    "@oof.gg/protobuf-ts": "^1.0.36",
     "ws": "^8.18.0"
   }
 }

@@ -1,7 +1,7 @@
 import Paddle from './paddle';
 
 export default class Ball {
-  private canvas: HTMLCanvasElement = document.querySelector('canvas') as HTMLCanvasElement;
+  private canvas: HTMLCanvasElement;
   private x: number = 0;
   private y: number = 0;
   private radius = 8;

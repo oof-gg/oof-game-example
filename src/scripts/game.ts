@@ -1,22 +1,24 @@
-import Paddle from "./paddle.js";
-import Ball from "./ball.js";
-import Config from "./config.js";
+import Paddle from "./paddle";
+import Ball from "./ball";
+import Config from "./config";
 
 export default class Game {
-  private canvas: HTMLCanvasElement = document.querySelector("canvas") as HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+  private canvas: HTMLCanvasElement;
+  private ctx: CanvasRenderingContext2D;
   private paddles: { [playerId: string]: Paddle } = {};
-  private ball: Ball = new Ball(this.canvas);
+  private ball: Ball;
   private lastFrameTime: number = 0; // used to calculate delta time for fps
   private localPlayerId: string = "";
   private paddleMoveCallback: (x: number, y: number, width: number, height: number) => void = () => {};
+  private importedConfig: any;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, importedConfig: any) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
     this.update = this.update.bind(this);
     this.ball = new Ball(this.canvas);
+    this.importedConfig = importedConfig
   }
 
   resizeCanvas(gameWidth: number, gameHeight: number) {

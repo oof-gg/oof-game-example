@@ -1,5 +1,5 @@
 export default class Paddle {
-  private canvas: HTMLCanvasElement = document.querySelector('canvas') as HTMLCanvasElement;
+  private canvas: HTMLCanvasElement;
   private width: number = 100;
   private height: number = 20;
   private x: number = 0;

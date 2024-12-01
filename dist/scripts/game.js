@@ -1,19 +1,21 @@
-import Paddle from "./paddle.js";
-import Ball from "./ball.js";
-import Config from "./config.js";
+import Paddle from "./paddle";
+import Ball from "./ball";
+import Config from "./config";
 export default class Game {
-    canvas = document.querySelector("canvas");
-    ctx = this.canvas.getContext("2d");
+    canvas;
+    ctx;
     paddles = {};
-    ball = new Ball(this.canvas);
+    ball;
     lastFrameTime = 0; // used to calculate delta time for fps
     localPlayerId = "";
     paddleMoveCallback = () => { };
-    constructor(canvas) {
+    importedConfig;
+    constructor(canvas, importedConfig) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
         this.update = this.update.bind(this);
         this.ball = new Ball(this.canvas);
+        this.importedConfig = importedConfig;
     }
     resizeCanvas(gameWidth, gameHeight) {
         // Resize the canvas to match the game width and height, while maintaining the aspect ratio. Put black bars on the sides or top/bottom if needed. Also handle the device pixel ratio.
