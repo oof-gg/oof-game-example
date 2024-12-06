@@ -19,7 +19,8 @@ export default class Game {
 
     this.update = this.update.bind(this);
     this.ball = new Ball(this.canvas);
-    this.importedConfig = importedConfig
+    this.importedConfig = importedConfig;
+    this.animationFrameId = null;
   }
 
   resizeCanvas(gameWidth: number, gameHeight: number) {
@@ -62,6 +63,7 @@ export default class Game {
   }
 
   setInitialState(currPlayerId: string, gameState: any, playerRole: string, gameWidth: number, gameHeight: number) {
+    console.log("setInitialState", currPlayerId, gameState, playerRole, gameWidth, gameHeight)
     this.localPlayerId = currPlayerId;
 
     this.resizeCanvas(gameWidth, gameHeight);
@@ -128,6 +130,7 @@ export default class Game {
     });
 
     this.animationFrameId = requestAnimationFrame(this.loop);
+
   }
 
   unload() {

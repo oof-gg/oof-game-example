@@ -14,13 +14,17 @@ export default class Paddle {
   private moveCallback: (x: number, y: number, width: number, height: number) => void = () => {} // Default to no-op
 
   constructor(canvas: HTMLCanvasElement, playerId: string, isLocalPlayer: boolean, isInverted: boolean = false, config: any) {
+
+    // Global Settings
     this.canvas = canvas;
+    this.config = config;
+    this.dpr = config.authConfig.config.dpr || 1;
+
+    // Game-Specific Settings
     this.isInverted = isInverted;
     this.isLocalPlayer = isLocalPlayer;
     this.playerId = playerId;
     this.isInverted = isInverted;
-    this.config = config;
-    this.dpr = config.authConfig.config.dpr || 1;
     this.y = isInverted ? 30 : this.canvas.height/this.dpr - 30;
 
     this.reset();
