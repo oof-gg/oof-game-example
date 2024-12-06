@@ -1,0 +1,58 @@
+{
+  "name": "My Game",
+  "short_name": "My Game",
+  "description": "A simple game",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000",
+  "theme_color": "#000",
+  "icons": [
+    {
+      "src": "icon/lowres.webp",
+      "sizes": "48x48",
+      "type": "image/webp"
+    },
+    {
+      "src": "icon/lowres.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "icon/hd_hi.ico",
+      "sizes": "72x72 96x96 128x128 256x256"
+    },
+    {
+      "src": "icon/hd_hi.svg",
+      "sizes": "72x72"
+    }
+  ],
+  "worker": "/workers/worker.js",
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "assets": {
+    "js": [
+      "scripts/main.js",
+      "scripts/helper.js"
+    ],
+    "css": [
+      "styles/main.css",
+      "styles/theme.css"
+    ],
+    "images": [
+      "images/background.png",
+      "images/sprite.png"
+    ],
+    "audio": [
+      "audio/background.mp3",
+      "audio/effect.wav"
+    ],
+    "video": [
+      "videos/intro.mp4",
+      "videos/tutorial.webm"
+    ],
+    "fonts": [
+      "fonts/Roboto-Regular.ttf",
+      "fonts/Roboto-Bold.ttf"
+    ]
+  }
+}

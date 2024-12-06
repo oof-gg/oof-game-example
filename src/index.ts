@@ -18,6 +18,7 @@ export const main = async (canvas: HTMLCanvasElement, config: game_instance.Inst
     authUrl: '/auth',
     socketUrl: 'ws://0.0.0.0:9090',
     apiUrl: '/api',
+    workerUrl: '/games/workers/worker.js',
   }
 
   const oof = new GameSDK();
@@ -55,11 +56,15 @@ export const main = async (canvas: HTMLCanvasElement, config: game_instance.Inst
   });
 
   oof.events.local.on('ABORT', (data) => {
-    console.log('ABORT event received:', data);
-  }, shadowRoot);
+    console.log('[main] ABORT event received:', data);
+  });
+
+  oof.events.local.on('ABORT', (data) => {
+    console.log('[main] ABORT event received:', data);
+  });
   
   oof.events.local.on('STOP', (data) => {
-    console.log('STOP event received:', data);
+    console.log('[main] STOP event received:', data);
   });
 
   //TODO: Add SDK to the game so that playerauth can be done
@@ -75,6 +80,8 @@ export const main = async (canvas: HTMLCanvasElement, config: game_instance.Inst
 
     oof.events.web.game.emit('UPDATE_PADDLE', payload);
   });
+
+  // Shutdown the game when the player leaves
 
   //Close Button that triggers the ABORT event
   console.log('Adding event listener for close button', shadowRoot);

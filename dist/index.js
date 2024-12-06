@@ -3,6 +3,7 @@ import { game_instance } from '@oof.gg/protobuf-ts';
 import { GameSDK } from '@oof.gg/sdk';
 export const main = async (canvas, config, shadowRoot) => {
     const gameConfig = config.authConfig?.config;
+
     const closeButton = shadowRoot.querySelector('#closeButton');
     closeButton?.addEventListener('click', () => {
         console.log('Close button clicked');
@@ -10,8 +11,9 @@ export const main = async (canvas, config, shadowRoot) => {
             state: 'ABORT',
             playerName: config.playerId,
         };
-        oof.events.local.emit('ABORT', payload, shadowRoot);
+        oof.events.local.emit('ABORT', payload);
     });
+
     const sdkConfig = {
         authUrl: '/auth',
         socketUrl: 'ws://0.0.0.0:9090',
@@ -32,6 +34,7 @@ export const main = async (canvas, config, shadowRoot) => {
     oof.events.web.game.emit('REGISTER_PLAYER', payload);
     // Listen for messages from the main thread
     game = new Game(canvas, config);
+
     // Subscribe to web game events
     oof.events.web.game.on('INIT', (data) => {
         playerName = data.playerId || null;
@@ -40,15 +43,11 @@ export const main = async (canvas, config, shadowRoot) => {
         playerName = data.playerName;
         game.start();
     });
+
     oof.events.web.game.on('STATE_UPDATE', (data) => {
         game.updateState(data.gameState);
     });
-    oof.events.local.on('ABORT', (data) => {
-        console.log('ABORT event received:', data);
-    }, shadowRoot);
-    oof.events.local.on('STOP', (data) => {
-        console.log('STOP event received:', data);
-    });
+
     //TODO: Add SDK to the game so that playerauth can be done
     game.onPaddleMove((x, y, width, height) => {
         const payload = {

@@ -3,6 +3,7 @@ import Ball from "./ball";
 import Config from "./config";
 
 export default class Game {
+  private animationFrameId: number | null = null;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private paddles: { [playerId: string]: Paddle } = {};
@@ -106,7 +107,7 @@ export default class Game {
       this.draw();
     }
 
-    requestAnimationFrame(this.loop);
+    this.animationFrameId = requestAnimationFrame(this.loop);
   }
 
   private update() {
@@ -126,6 +127,22 @@ export default class Game {
       this.paddleMoveCallback(x, y, width, height);
     });
 
-    requestAnimationFrame(this.loop);
+    this.animationFrameId = requestAnimationFrame(this.loop);
+  }
+
+  unload() {
+    // Cancel the animation frame
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    // Remove event listeners from paddles
+    Object.values(this.paddles).forEach(paddle => {
+      paddle.removeEventListeners();
+    });
+
+    // Clear the canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }

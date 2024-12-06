@@ -40,6 +40,12 @@ export default class Paddle {
     console.log("Paddle reset:", this.x, this.y);
   }
 
+  public removeEventListeners() {
+    // Remove event listeners
+    window.removeEventListener('keydown', this.handleKeyDown);
+    window.removeEventListener('keyup', this.handleKeyUp);
+  }
+
   private handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "ArrowLeft") {
       this.direction = -1 // Invert for top player

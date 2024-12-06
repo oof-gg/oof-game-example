@@ -5,10 +5,11 @@ This is an oof.gg game example leveraging SDK. The goal of this project is to de
 - [x] Create a canvas/webgl context
 - [x] Create a game loop
 - [ ] Define Game Config
-- [ ] Add a Second Player
+- [x] Add a Second Player
 - [ ] Authenticate with the SDK
-- [ ] Send and receive data from the SDK
-- [ ] Run the game
+- [x] Send and receive data from the SDK
+- [x] Run the game
+- [ ] Refactor the game to use an "implementation" to standardize the game loop
 
 ## Requirements
 - Take in the canvas element
