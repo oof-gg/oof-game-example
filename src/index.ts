@@ -60,16 +60,16 @@ export default class main implements GameInterface {
         state: 'ABORT',
         playerName: this.config.playerId,
       }
-      this.oof.events.local.emit('ABORT', payload, this.config.shadowRoot);
+      this.oof.events.local.emit('CLOSE', payload, this.config.shadowRoot);
     });
   }
 
   start = async () => {
-    console.log('Starting game');
+    console.log('[Game] Starting game');
 
     // Subscribe to web game events
     this.oof.events.web.game.on('INIT', (data) => {
-      console.log('[main] INIT event received:', data);
+      console.log('[Game] INIT event received:', data);
       this.playerName = data.playerId || null;
       this.isInverted = data.playerRole === "top";
       this.game.setInitialState(data.playerName, data.gameState, data.playerRole, data.gameWidth, data.gameHeight);
@@ -77,20 +77,10 @@ export default class main implements GameInterface {
       this.game.start();
     });
 
+    // Subscribe to web game events
     this.oof.events.web.game.on('STATE_UPDATE', (data) => {
-      this.game.updateState(data.gameState);
-    });
-
-    this.oof.events.local.on('ABORT', (data) => {
-      console.log('[main] ABORT event received:', data);
-    });
-
-    this.oof.events.local.on('ABORT', (data) => {
-      console.log('[main] ABORT event received:', data);
-    });
-    
-    this.oof.events.local.on('STOP', (data) => {
-      console.log('[main] STOP event received:', data);
+      if(this.game.isStarted() === true)
+        this.game.updateState(data.gameState);
     });
 
     //TODO: Add SDK to the game so that playerauth can be done
@@ -122,6 +112,8 @@ export default class main implements GameInterface {
 
   unload = async () => {
     console.log('Unloading game');
+    this.oof.events.local.off('CLOSE');
+    this.oof.disconnect();
     this.game.unload();
   }
 }
