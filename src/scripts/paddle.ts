@@ -18,7 +18,7 @@ export default class Paddle {
     // Global Settings
     this.canvas = canvas;
     this.config = config;
-    this.dpr = config.authConfig.config.dpr || 1;
+    this.dpr = config.dpr || 1;
 
     // Game-Specific Settings
     this.isInverted = isInverted;

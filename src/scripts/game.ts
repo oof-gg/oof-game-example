@@ -13,6 +13,7 @@ export default class Game {
   private paddleMoveCallback: (x: number, y: number, width: number, height: number) => void = () => {};
   private importedConfig: any;
   private gameStarted: boolean;
+  private config: any;
   
   constructor(canvas: HTMLCanvasElement, importedConfig: any) {
     this.canvas = canvas;
@@ -23,12 +24,26 @@ export default class Game {
     this.importedConfig = importedConfig;
     this.animationFrameId = null;
     this.gameStarted = false;
+    this.config = {}
   }
 
   resizeCanvas(gameWidth: number, gameHeight: number) {
-    const canvasWidth = this.importedConfig.authConfig.config.screenWidth;
-    const canvasHeight = this.importedConfig.authConfig.config.screenHeight;
-    const dpr = this.importedConfig.authConfig.config.dpr || 1;
+    // TODO: Improve this implementation
+    const canvasWidth = this.importedConfig.authConfig.configMap.filter((config: any) => {
+      if(config[0] === "screenWidth") {
+        return config;
+      }})[1]
+    const canvasHeight = this.importedConfig.authConfig.configMap.filter((config: any) => {
+      if(config[0] === "screenHeight") {
+        return config;
+      }})[1]
+    const dpr = parseInt(this.importedConfig.authConfig.configMap.filter((config: any) => {
+      if(config[0] === "dpr") {
+        return config;
+      }})[1]) || 1;
+
+    console.log(this.importedConfig);
+
     // Resize the canvas to match the game width and height, while maintaining the aspect ratio. Put black bars on the sides or top/bottom if needed. Also handle the device pixel ratio.
     const gameAspectRatio = gameWidth / gameHeight;
     const windowAspectRatio = canvasWidth / canvasHeight;
@@ -54,6 +69,14 @@ export default class Game {
     this.canvas.width = gameWidth * dpr;
     this.canvas.height = gameHeight * dpr;
     this.ctx.scale(dpr, dpr);
+
+    this.config = {
+      gameWidth,
+      gameHeight,
+      canvasWidth,
+      canvasHeight,
+      dpr,
+    }
   }
 
   setInitialState(currPlayerId: string, gameState: any, playerRole: string, gameWidth: number, gameHeight: number) {
@@ -68,12 +91,16 @@ export default class Game {
         bottom_player = !bottom_player;
       }
       
-      this.paddles[playerId] = new Paddle(this.canvas, playerId, playerId === this.localPlayerId, bottom_player, this.importedConfig);
+      this.paddles[playerId] = new Paddle(this.canvas, playerId, playerId === this.localPlayerId, bottom_player, this.config);
       i++;
     }
 
     this.ball.setPosition(gameState.ball.x, gameState.ball.y);
-    
+
+    // Render the player's name in the top-left corner
+    this.ctx.fillStyle = "#FFFFFF";
+    this.ctx.font = "20px Arial";
+    this.ctx.fillText(this.localPlayerId, 10, 30);
   }
   
   updateState(gameState: any) {
@@ -113,6 +140,11 @@ export default class Game {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     Object.values(this.paddles).forEach(paddle => paddle.draw(this.ctx));
     this.ball.draw(this.ctx);
+
+    // Render the player's name in the top-left corner
+    this.ctx.fillStyle = "#FFFFFF";
+    this.ctx.font = "20px Arial";
+    this.ctx.fillText(this.localPlayerId, 10, 30);
   }
 
   start() {
