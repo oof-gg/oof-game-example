@@ -1,5 +1,5 @@
 import Game from "./scripts/game";
-import { game_instance } from '@oof.gg/protobuf-ts';
+import { v1_api_game_instance_pb } from '@oof.gg/protobuf-ts-web';
 import { GameSDK, SDKConfig, GameInterface } from '@oof.gg/sdk';
 
 export default class main implements GameInterface {
@@ -10,13 +10,15 @@ export default class main implements GameInterface {
   private playerName: string | null = null;
   private isInverted = false // Assume the opponent is at the top
 
-  constructor(canvas: HTMLCanvasElement, config: game_instance.InstanceCommandMessage, shadowRoot: ShadowRoot) {   
+  constructor(canvas: HTMLCanvasElement, config: any, shadowRoot: ShadowRoot) {   
     const sdkConfig: SDKConfig = {
       authUrl: '/auth',
       socketUrl: 'ws://0.0.0.0:9090',
       apiUrl: '/api',
-      workerUrl: '/games/workers/worker.js',
+      workerUrl: `/games/${config.gameId}/workers/worker.js`,
     }
+
+    console.log('Creating game with config:', config);
     
     this.config = {
       config: config,
@@ -25,7 +27,7 @@ export default class main implements GameInterface {
       shadowRoot: shadowRoot,
       sdk: sdkConfig
     }
-    this.token = config.authConfig?.token || '';
+    this.token = this.config.authConfig.token || '';
     this.oof    = new GameSDK();
     
     // Global Settings
@@ -44,7 +46,7 @@ export default class main implements GameInterface {
     await this.oof.connect(this.token);
 
   const payload = {
-    state: game_instance.InstanceCommandEnum.START,
+    state: v1_api_game_instance_pb.InstanceCommandEnum.START,
     playerName: this.config.playerId,
   }
 
