@@ -12,11 +12,11 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Expose the ports the server runs on
-EXPOSE 9090
-
 # Set environment variables
 ENV NODE_ENV=production
 
+# Expose the port the server runs on
+EXPOSE 3000
+
 # Start the server
-CMD ["node", "server.js"]
+CMD ["node", "dist/index.js"]

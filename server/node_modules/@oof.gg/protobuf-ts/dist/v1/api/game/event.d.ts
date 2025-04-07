@@ -3,8 +3,8 @@ export declare const protobufPackage = "v1.api.game";
 /** / Game Events, message can trigger API calls or other events */
 export interface GameEvent {
     /** / Unique identifier for the event to prevent duplicates, and to be able to retrieve the event from the server if necessary */
-    id: string;
-    eventName: string;
+    id?: string | undefined;
+    eventName?: string | undefined;
     timestamp: number;
     gameId?: string | undefined;
     playerId?: string | undefined;

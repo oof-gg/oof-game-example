@@ -34,6 +34,10 @@ export interface GameUpdateRequest {
     description: string;
     data?: string | undefined;
 }
+export interface TrendingGamesRequest {
+    limit?: number | undefined;
+    cursor?: string | undefined;
+}
 export interface GameUpdateResponse {
     game: Game | undefined;
 }
@@ -100,6 +104,7 @@ export declare const GameCreateResponse: MessageFns<GameCreateResponse>;
 export declare const GameGetRequest: MessageFns<GameGetRequest>;
 export declare const GameGetResponse: MessageFns<GameGetResponse>;
 export declare const GameUpdateRequest: MessageFns<GameUpdateRequest>;
+export declare const TrendingGamesRequest: MessageFns<TrendingGamesRequest>;
 export declare const GameUpdateResponse: MessageFns<GameUpdateResponse>;
 export declare const Games: MessageFns<Games>;
 export declare const Status: MessageFns<Status>;

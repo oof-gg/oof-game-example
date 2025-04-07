@@ -3,16 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "build": "tsc && sh build.sh",
+    "start": "node dist/index.js"
   },
   "author": "Brian S. <brian@convnet.ai> (https://www.convnet.ai/)",
   "license": "ISC",
   "dependencies": {
-    "@oof.gg/protobuf-ts": "^1.0.98",
+    "@grpc/grpc-js": "^1.13.2",
+    "@oof.gg/protobuf-ts": "^1.0.106",
+    "@oof.gg/sdk": "^0.1.13",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1"
   }
 }

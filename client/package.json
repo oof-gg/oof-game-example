@@ -11,7 +11,6 @@
   "author": "Brian S. <brian@oof.gg> (https://www.oof.gg/)",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@oof.gg/sdk": "file:../../../oof-sdk/dist",
     "@types/node": "^22.9.3",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
@@ -26,6 +25,7 @@
   },
   "dependencies": {
     "@oof.gg/protobuf-ts-web": "^1.0.103",
+    "@oof.gg/sdk": "file:../../oof-sdk",
     "express": "^4.21.1",
     "socket.io": "^4.8.1",
     "ws": "^8.18.0"

@@ -46,6 +46,33 @@ export interface PlayerUpdate {
 export interface PlayerGet {
     id?: string | undefined;
 }
+export interface Status {
+    /** The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code]. */
+    code: number;
+    /**
+     * A developer-facing error message, which should be in English. Any
+     * user-facing error message should be localized and sent in the
+     * [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+     */
+    message: string;
+    /**
+     * A list of messages that carry the error details.  There will be a
+     * common set of message types for APIs to use.
+     */
+    details: string[];
+}
+/** Unify everything into one response. */
+export interface StandardResponse {
+    /** Status code (e.g., HTTP or custom). */
+    code: number;
+    /** This could be your success or error message. */
+    message: string;
+    /** If there's an error, you could store it here or just use google.rpc.Status directly. */
+    error: Status | undefined;
+    /** For single items. */
+    singlePlayer?: Player | undefined;
+    players?: Players | undefined;
+}
 export interface Players {
     players: Player[];
 }
@@ -53,6 +80,8 @@ export declare const Player: MessageFns<Player>;
 export declare const PlayerCreate: MessageFns<PlayerCreate>;
 export declare const PlayerUpdate: MessageFns<PlayerUpdate>;
 export declare const PlayerGet: MessageFns<PlayerGet>;
+export declare const Status: MessageFns<Status>;
+export declare const StandardResponse: MessageFns<StandardResponse>;
 export declare const Players: MessageFns<Players>;
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 export type DeepPartial<T> = T extends Builtin ? T : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>> : T extends {} ? {

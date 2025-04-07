@@ -1,5 +1,7 @@
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+console.log('Webpack config loaded', __dirname)
+console.log('Webpack config loaded', __filename)
 module.exports = {
   mode: 'production',
   entry: './src/index.ts',
@@ -18,7 +20,7 @@ module.exports = {
         {
           from: path.resolve(
             __dirname,
-            'node_modules/@oof.gg/sdk/workers/worker.js'
+            'node_modules/@oof.gg/sdk/dist/workers/worker.js'
           ), // Path to the file in node_modules
           to: path.resolve(__dirname, 'dist/workers/worker.js'), // Desired output location
         },

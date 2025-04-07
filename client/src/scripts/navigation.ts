@@ -7,6 +7,8 @@ export default class GameNavigation {
     private buttonY: number;
     private buttonWidth: number;
     private buttonHeight: number;
+    private boundHandleClick: (event: MouseEvent) => void;
+    private buttonVisible: boolean = true;
   
     constructor(canvas: HTMLCanvasElement) {
       this.canvas = canvas;
@@ -22,11 +24,14 @@ export default class GameNavigation {
       this.buttonX = (canvas.width - this.buttonWidth) / 2;
       this.buttonY = (canvas.height - this.buttonHeight) / 2;
   
+      // Store the bound handle click function
+      this.boundHandleClick = this.handleClick.bind(this);
+      
       // Draw the button initially
       this.drawButton();
   
       // Attach a click event listener to the canvas
-      this.canvas.addEventListener('click', this.handleClick.bind(this));
+      this.canvas.addEventListener('click', this.boundHandleClick);
     }
   
     private drawButton(): void {
@@ -53,6 +58,9 @@ export default class GameNavigation {
     }
   
     private handleClick(event: MouseEvent): void {
+      // If button is hidden, ignore clicks
+      if (!this.buttonVisible) return;
+      
       // Calculate canvas-relative click coordinates
       const rect = this.canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
@@ -77,5 +85,24 @@ export default class GameNavigation {
      */
     public onJoinGame(callback: () => void): void {
       this.joinGameCallback = callback;
+    }
+
+    // Hide the button
+    public hideButton(): void {
+      // Clear the button from the canvas
+      this.context.clearRect(this.buttonX, this.buttonY, this.buttonWidth, this.buttonHeight);
+      
+      // Set the button as not visible
+      this.buttonVisible = false;
+      
+      // We don't need to remove the event listener completely as we now check visibility in handleClick
+      // But if you want to remove it completely:
+      // this.canvas.removeEventListener('click', this.boundHandleClick);
+    }
+
+    // Add a method to show the button if needed
+    public showButton(): void {
+      this.buttonVisible = true;
+      this.drawButton();
     }
   }
