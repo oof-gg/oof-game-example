@@ -9,24 +9,69 @@ const instanceServiceImpl = {
         console.log('Client ID:', call.getPeer());
         console.log('Sending connected event to client');
         // Handle client connection
-        call.write({
-            eventName: 'connected',
-            type: GameEvent_EventType.TYPE_GAME_EVENT,
-            timestamp: Date.now(),
-            gameId: '',
-            sessionId: process.env.SESSION_ID || '',
-            attributes: {
-                value: {
-                    stringValue: 'connected',
-                }
-            },
-            data: "{}"
-        });
         // Bidirectional stream: read client data and send responses
         call.on('data', (event) => {
+            if (event.eventName === 'CLIENT_CONNECTED') {
+                console.log('Client connected:', event.data);
+                call.write({
+                    id: `conn-${Date.now()}`,
+                    eventName: "SERVER_CONNECTED",
+                    timestamp: Math.floor(Date.now() / 1000),
+                    type: GameEvent_EventType.TYPE_SYSTEM,
+                    attributes: {
+                        "status": {
+                            stringValue: "connected"
+                        },
+                        "server_id": {
+                            stringValue: process.env.SESSION_ID // You can use any server identifier here
+                        },
+                        "connection_timestamp": {
+                            stringValue: new Date().toISOString()
+                        }
+                    }
+                });
+            }
             console.log('Received client event:', event);
+            // Handle different event types
+            if (event.eventName === 'REGISTER_PLAYER') {
+                console.log('Player registration received:', event.data);
+                // Send confirmation
+                call.write({
+                    id: `reg-confirm-${Date.now()}`,
+                    eventName: "PLAYER_REGISTERED",
+                    timestamp: Math.floor(Date.now() / 1000),
+                    type: GameEvent_EventType.TYPE_SYSTEM,
+                    attributes: {},
+                    data: JSON.stringify({
+                        success: true,
+                        message: "Player registered successfully",
+                        player_id: event.playerId,
+                        registered_at: new Date().toISOString()
+                    })
+                });
+            }
+            else if (event.eventName === 'CONNECTION_CONFIRMED') {
+                // Send connection confirmation
+                call.write({
+                    id: `conn-${Date.now()}`,
+                    eventName: "CONNECTION_CONFIRMED",
+                    timestamp: Math.floor(Date.now() / 1000),
+                    type: GameEvent_EventType.TYPE_SYSTEM,
+                    attributes: {
+                        "status": {
+                            stringValue: "connected"
+                        },
+                        "server_id": {
+                            stringValue: "game-server-1" // You can use any server identifier here
+                        },
+                        "connection_timestamp": {
+                            stringValue: new Date().toISOString()
+                        }
+                    }
+                });
+            }
             // Echo the event or transform as needed
-            call.write(event);
+            // call.write(event);
         });
         call.on('end', () => {
             call.end();

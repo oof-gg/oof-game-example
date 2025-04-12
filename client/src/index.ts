@@ -12,6 +12,7 @@ export default class main implements GameInterface {
   private isInverted = false // Assume the opponent is at the top
   private navigation: GameNavigation;
   private sessionId: string;
+  private hasRegistered: boolean = false;
 
   constructor(canvas: HTMLCanvasElement, config: any, shadowRoot: ShadowRoot) {   
     const sdkConfig: SDKConfig = {
@@ -63,6 +64,7 @@ export default class main implements GameInterface {
         await this.oof.api.game.setSessionId(response.session.id);
         await this.oof.connect(this.token, this.sessionId)
         // connect to the game using the sessionId via websocket
+        console.log('Connected to game with sessionId:', this.sessionId);
         this.oof.events.web.game.emit('CLIENT_CONNECTED', {
           playerName: this.config.playerId,
           gameId: this.config.gameId,
@@ -73,6 +75,8 @@ export default class main implements GameInterface {
           gameState: this.config.gameState
         });
 
+
+        console.log('Game started');
         this.start();
         // HIDE THE NAVIGATION
         this.navigation.hideButton();
@@ -97,7 +101,7 @@ export default class main implements GameInterface {
 
     const closeButton = this.config.shadowRoot.querySelector('#closeButton');
     closeButton?.addEventListener('click', () => {
-      console.log('[Game] Close button clicked');
+      console.log('Close button clicked');
       const payload = {
         state: 'ABORT',
         playerName: this.config.playerId,
@@ -111,20 +115,28 @@ export default class main implements GameInterface {
   }
 
   start = async () => {
-    console.log('[Game] Starting game');
 
-    this.oof.events.web.game.on('SERVER_CONNECTED', (data) => {
-      console.log('[Game] Server connected:', data);
-      this.oof.events.web.game.emit('REGISTER_PLAYER', {
-          playerName: this.config.playerId,
-          gameId: this.config.gameId,
-          sessionId: this.sessionId,
-          gameWidth: this.config.gameWidth,
-          gameHeight: this.config.gameHeight,
-          playerRole: this.config.playerRole,
-          gameState: this.config.gameState
+    console.log('[Start] Starting game');
+    // Subscribe to Server Connected event
+    this.oof.events.web.game.on('TYPE_SYSTEM', (data) => {
+      console.log('[Start] Received event:', data);
+      if (data.event_name === 'SERVER_CONNECTED') {
+        console.log('[Start] Server connected:', data);
+        if(!this.hasRegistered) {
+          this.hasRegistered = true;
+          // Register the player with the game server
+          this.oof.events.web.game.emit('REGISTER_PLAYER', {
+              playerName: this.config.playerId,
+              gameId: this.config.gameId,
+              sessionId: this.sessionId,
+              gameWidth: this.config.gameWidth,
+              gameHeight: this.config.gameHeight,
+              playerRole: this.config.playerRole,
+              gameState: this.config.gameState
+            }
+          );
         }
-      );
+      }
     });
 
     // Subscribe to web game events
