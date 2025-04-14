@@ -27,6 +27,8 @@ export default class Paddle {
     this.isInverted = isInverted;
     this.y = isInverted ? 30 : this.canvas.height/this.dpr - 30;
 
+    console.log("Paddle created for this player:", playerId, isLocalPlayer, isInverted);
+
     this.reset();
 
     if(this.isLocalPlayer) {

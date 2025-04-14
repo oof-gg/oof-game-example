@@ -14,6 +14,7 @@ export default class Game {
   private importedConfig: any;
   private gameStarted: boolean;
   private config: any;
+  private localPaddle: Paddle | null;
   
   constructor(canvas: HTMLCanvasElement, importedConfig: any) {
     this.canvas = canvas;
@@ -25,6 +26,7 @@ export default class Game {
     this.animationFrameId = null;
     this.gameStarted = false;
     this.config = {}
+    this.localPaddle = null;
   }
 
   resizeCanvas(gameWidth: number, gameHeight: number) {
@@ -105,17 +107,35 @@ export default class Game {
   
   updateState(gameState: any) {
     for (const playerId in gameState.paddles) {
-      // only update the position of the paddle if it's not the local player
-      if (playerId !== this.localPlayerId) {
-        this.paddles[playerId].setPosition(gameState.paddles[playerId].x);
+      // Check if this paddle exists before trying to update it
+      if (this.paddles[playerId]) {
+        // only update the position of the paddle if it's not the local player
+        if (playerId !== this.localPlayerId) {
+          this.paddles[playerId].setPosition(gameState.paddles[playerId].x);
+        }
       }
     }
-
-    this.ball.setPosition(gameState.ball.x, gameState.ball.y);
+  
+    // Also add a safety check for the ball
+    if (gameState.ball && this.ball) {
+      this.ball.setPosition(gameState.ball.x, gameState.ball.y);
+    }
   }
 
   onPaddleMove(callback: (x: number, y: number, width: number, height: number) => void) {
-    this.paddleMoveCallback = callback;
+    console.log("Game: registering paddle move callback");
+
+    // Check if the local paddle exists
+    if (!this.localPaddle) {
+      console.error("Local paddle not found or not initialized yet");
+      return;
+    }
+    
+    // Connect the callback to the paddle
+    this.localPaddle.onMove((x: number, y: number, width: number, height: number) => {
+      console.log("Game: paddle move detected, forwarding to main");
+      callback(x, y, width, height);
+    });
   }
 
   loop = (timestamp: number) => {
@@ -148,8 +168,8 @@ export default class Game {
   }
 
   start() {
-    const localPaddle = this.paddles[this.localPlayerId];
-    localPaddle?.onMove((x: number, y: number, width: number, height: number) => {
+    this.localPaddle = this.paddles[this.localPlayerId];
+    this.localPaddle?.onMove((x: number, y: number, width: number, height: number) => {
       this.paddleMoveCallback(x, y, width, height);
     });
 
