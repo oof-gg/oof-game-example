@@ -66,6 +66,9 @@ export default class main implements GameInterface {
         
         // connect to the game using the sessionId via websocket
         console.log('Connected to game with sessionId:', this.sessionId);
+
+        // TODO: Waiting for Players
+        // TODO: Wrap this in a case statement if players are all present
         
         // Emit the CLIENT_CONNECTED event
         this.oof.events.web.game.emit('CLIENT_CONNECTED', {
@@ -78,6 +81,15 @@ export default class main implements GameInterface {
         // HIDE THE NAVIGATION
         this.navigation.hideButton();
         // TODO: Connect to the game using the sessionId 
+      } else {
+
+        
+        console.error('Error joining game:', response);
+        this.oof.events.local.emit('ERROR', {
+          state: 'error',
+          code: response.code,
+          message: response.message
+        }, this.config.shadowRoot);
       }
     });
   }
@@ -95,7 +107,7 @@ export default class main implements GameInterface {
       const payload = {
         state: 'ABORT'
       }
-      this.oof.events.local.emit('CLOSE', payload, this.config.shadowRoot);
+      this.oof.events.local.emit('GAME_STATE', payload, this.config.shadowRoot);
     });
   }
 
@@ -115,6 +127,13 @@ export default class main implements GameInterface {
                 session_id: this.sessionId
               }
             );
+
+            // Trigger the game queued event
+            let queued_payload = {
+              state: 'QUEUED',
+              session_id: this.sessionId
+            }
+            this.oof.events.local.emit('GAME_STATE', queued_payload, this.config.shadowRoot);
           }
         }
       });
@@ -123,6 +142,14 @@ export default class main implements GameInterface {
       // Subscribe to web game events
       this.oof.events.web.game.on('TYPE_GAME_EVENT', (ev) => {
         if(ev.event_name === 'INIT') {
+
+          // Trigger the game start event
+          let started_payload = {
+            state: 'STARTED',
+            session_id: this.sessionId
+          }
+          this.oof.events.local.emit('GAME_STATE', started_payload, this.config.shadowRoot);
+
           this.playerId = ev.data.playerName || null;
           this.isInverted = ev.data.playerRole === "top";
           
