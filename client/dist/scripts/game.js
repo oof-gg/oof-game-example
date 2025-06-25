@@ -25,21 +25,12 @@ export default class Game {
     }
     resizeCanvas(gameWidth, gameHeight) {
         // TODO: Improve this implementation
-        const canvasWidth = this.importedConfig.authConfig.configMap.filter((config) => {
-            if (config[0] === "screenWidth") {
-                return config;
-            }
-        })[1];
-        const canvasHeight = this.importedConfig.authConfig.configMap.filter((config) => {
-            if (config[0] === "screenHeight") {
-                return config;
-            }
-        })[1];
-        const dpr = parseInt(this.importedConfig.authConfig.configMap.filter((config) => {
-            if (config[0] === "dpr") {
-                return config;
-            }
-        })[1]) || 1;
+        const widthEntry = this.importedConfig.authConfig.configMap.find((config) => config[0] === "screenWidth");
+        const canvasWidth = widthEntry ? parseInt(widthEntry[1]) : undefined;
+        const heightEntry = this.importedConfig.authConfig.configMap.find((config) => config[0] === "screenHeight");
+        const canvasHeight = heightEntry ? parseInt(heightEntry[1]) : undefined;
+        const dprEntry = this.importedConfig.authConfig.configMap.find((config) => config[0] === "dpr");
+        const dpr = dprEntry ? parseInt(dprEntry[1]) : 1;
         console.log(this.importedConfig);
         // Resize the canvas to match the game width and height, while maintaining the aspect ratio. Put black bars on the sides or top/bottom if needed. Also handle the device pixel ratio.
         const gameAspectRatio = gameWidth / gameHeight;
